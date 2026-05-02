@@ -22,9 +22,9 @@ public class ProjectConverter implements ITypeConverter<Project> {
     private static final Logger log = LoggerFactory.getLogger(ProjectConverter.class);
     private static final List<GamePredicate> predicates = List.of(
         new GamePredicate(
-            List.of("ds.exe", "DeathStranding.exe"), // Steam, Epic
+            List.of("ds.exe", "DeathStranding.exe"), // Steam/Game Pass, Epic
             root -> Files.exists(root.resolve("XeFX.dll")) ? GameType.DSDC : GameType.DS,
-            root -> root.resolve("data"),
+            root -> resolveExisting(root, "data", "packed_GDK"), // Steam/Epic has "data", Game Pass has "packed_GDK"
             root -> root.resolve("oo2core_7_win64.dll")
         ),
         new GamePredicate(
@@ -102,6 +102,25 @@ public class ProjectConverter implements ITypeConverter<Project> {
         log.debug("Found project '{}' ({})", container.getName(), container.getId());
 
         return manager.openProject(container);
+    }
+
+    @NotNull
+    private static Path resolveExisting(@NotNull Path root, @NotNull String first, @NotNull String... rest) {
+        final Path fallback = root.resolve(first);
+
+        if (Files.exists(fallback)) {
+            return fallback;
+        }
+
+        for (String name : rest) {
+            final Path candidate = root.resolve(name);
+
+            if (Files.exists(candidate)) {
+                return candidate;
+            }
+        }
+
+        return fallback;
     }
 
     @NotNull

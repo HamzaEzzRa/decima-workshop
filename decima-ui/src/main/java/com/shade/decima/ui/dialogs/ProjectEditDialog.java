@@ -19,6 +19,7 @@ import net.miginfocom.swing.MigLayout;
 
 import javax.swing.*;
 import javax.swing.text.JTextComponent;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Locale;
 import java.util.Objects;
@@ -206,8 +207,8 @@ public class ProjectEditDialog extends BaseEditDialog {
         final String newFilename = IOUtils.getBasename(path).toLowerCase(Locale.ROOT);
 
         switch (newFilename) {
-            case "ds" -> {
-                setIfEmptyOrOldValue(archiveFolderPath, Path.of(archiveFolderPath.getText()), path.resolveSibling("data"));
+            case "ds", "deathstranding" -> {
+                setIfEmptyOrOldValue(archiveFolderPath, Path.of(archiveFolderPath.getText()), resolveExistingSibling(path, "data", "packed_GDK"));
                 setIfEmptyOrOldValue(compressorPath, Path.of(compressorPath.getText()), path.resolveSibling("oo2core_7_win64.dll"));
             }
             case "horizonzerodawn" -> {
@@ -215,6 +216,25 @@ public class ProjectEditDialog extends BaseEditDialog {
                 setIfEmptyOrOldValue(compressorPath, Path.of(compressorPath.getText()), path.resolveSibling("oo2core_3_win64.dll"));
             }
         }
+    }
+
+    @NotNull
+    private static Path resolveExistingSibling(@NotNull Path path, @NotNull String first, @NotNull String... rest) {
+        final Path fallback = path.resolveSibling(first);
+
+        if (Files.exists(fallback)) {
+            return fallback;
+        }
+
+        for (String name : rest) {
+            final Path candidate = path.resolveSibling(name);
+
+            if (Files.exists(candidate)) {
+                return candidate;
+            }
+        }
+
+        return fallback;
     }
 
     private static void setIfEmptyOrOldValue(@NotNull JTextComponent component, @NotNull Path oldPath, @NotNull Path newPath) {

@@ -12,15 +12,17 @@ import picocli.CommandLine.ScopeType;
     DumpFilePaths.class,
     DumpEntryPointNames.class,
     DumpFileReferences.class,
+    FindFiles.class,
     DumpTypeLayouts.class,
     DumpCoreObjects.class,
+    ScanObjects.class,
     Localization.class,
     Projects.class,
     RepackArchive.class,
     GetOodleLibrary.class
 })
 public class ApplicationCLI {
-    @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
+    @Option(names = {"-h", "--help"}, usageHelp = true, scope = ScopeType.INHERIT, description = "Display this help message")
     private boolean usageHelpRequested;
 
     @Option(names = {"-v", "--verbose"}, scope = ScopeType.INHERIT, description = "Enable verbose logging")

@@ -5,3 +5,6 @@
 # Uncompressed metadata files
 data/*.json
 data/*.txt
+
+target/
+*.local

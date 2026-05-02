@@ -1,5 +1,6 @@
 package com.shade.decima.ui;
 
+import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.encoder.PatternLayoutEncoder;
 import ch.qos.logback.classic.spi.ILoggingEvent;
@@ -88,6 +89,8 @@ public class Application implements com.shade.platform.model.app.Application {
 
     @Override
     public void start(@NotNull String[] args) {
+        configureCliLogging(args);
+
         final Properties p = System.getProperties();
 
         log.info("Starting {} ({}, {})", getTitle(), getVersion(), getBuildNumber());
@@ -185,6 +188,25 @@ public class Application implements com.shade.platform.model.app.Application {
                 log.warn("Error during periodical state save", e);
             }
         }, 5, 5, TimeUnit.MINUTES);
+    }
+
+    private static void configureCliLogging(@NotNull String[] args) {
+        if (args.length == 0 || isVerboseCli(args)) {
+            return;
+        }
+
+        final var context = (LoggerContext) LoggerFactory.getILoggerFactory();
+        context.getLogger(Logger.ROOT_LOGGER_NAME).setLevel(Level.WARN);
+    }
+
+    private static boolean isVerboseCli(@NotNull String[] args) {
+        for (String arg : args) {
+            if (arg.equals("-v") || arg.equals("--verbose")) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static void cleanupPreferences() throws BackingStoreException {

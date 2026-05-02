@@ -26,7 +26,6 @@ public class RTTITypeRegistry {
         }
 
         resolvePending();
-        computeHashes();
     }
 
     @SuppressWarnings("unchecked")
@@ -104,23 +103,34 @@ public class RTTITypeRegistry {
         return hash;
     }
 
+    @NotNull
+    public Collection<RTTIType<?>> getTypes() {
+        return Collections.unmodifiableCollection(cacheByName.values());
+    }
+
     private void resolvePending() {
         while (!pendingTypes.isEmpty()) {
             final PendingType type = pendingTypes.element();
             type.provider().resolve(this, type.type());
             pendingTypes.remove();
         }
+
+        computeHashes();
     }
 
     private void computeHashes() {
         for (RTTIType<?> type : cacheByName.values()) {
-            if (type instanceof RTTITypeSerialized serialized) {
-                final RTTITypeSerialized.TypeId id = serialized.getTypeId();
+            computeHash(type);
+        }
+    }
 
-                if (id != null) {
-                    cacheByHash.put(id.low(), type);
-                    hashByType.put(type, id.low());
-                }
+    private void computeHash(@NotNull RTTIType<?> type) {
+        if (type instanceof RTTITypeSerialized serialized) {
+            final RTTITypeSerialized.TypeId id = serialized.getTypeId();
+
+            if (id != null) {
+                cacheByHash.put(id.low(), type);
+                hashByType.put(type, id.low());
             }
         }
     }

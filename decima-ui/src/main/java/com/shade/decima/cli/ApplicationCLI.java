@@ -6,11 +6,14 @@ import com.shade.decima.model.app.Project;
 import picocli.CommandLine;
 import picocli.CommandLine.Command;
 import picocli.CommandLine.Option;
+import picocli.CommandLine.ScopeType;
 
 @Command(subcommands = {
     DumpFilePaths.class,
     DumpEntryPointNames.class,
     DumpFileReferences.class,
+    DumpTypeLayouts.class,
+    DumpCoreObjects.class,
     Localization.class,
     Projects.class,
     RepackArchive.class,
@@ -19,6 +22,9 @@ import picocli.CommandLine.Option;
 public class ApplicationCLI {
     @Option(names = {"-h", "--help"}, usageHelp = true, description = "Display this help message")
     private boolean usageHelpRequested;
+
+    @Option(names = {"-v", "--verbose"}, scope = ScopeType.INHERIT, description = "Enable verbose logging")
+    private boolean verbose;
 
     public static void execute(String[] args) {
         final int status = new CommandLine(ApplicationCLI.class)
